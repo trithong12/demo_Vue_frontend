@@ -1,5 +1,5 @@
 <template>
-  <div class="top-block-container">
+  <div>
     <b-row>
       <b-col xl="8" lg="12" class="col-style">
         <Carousel></Carousel>
@@ -11,16 +11,22 @@
       </b-col>
     </b-row>
     <div class="main-content-container">
-      <b-row>
-        <b-col v-for="i in Array.from(Array(10).keys())" :key="i" xl="4" lg="6" md="6" sm="12">
-          <ExhibitionCard></ExhibitionCard>
-        </b-col>
-      </b-row>
+      <b-overlay :show="wait" rounded="sm">
+        <b-row>
+          <b-col v-for="(exhibition, i) in exhibitionList" :key="i" xl="4" lg="6" md="6" sm="12">
+            <ExhibitionCard :exhibition="exhibition"></ExhibitionCard>
+          </b-col>
+        </b-row>
+        <div class="more-button-container">
+          <b-button href="#" variant="primary">查看更多</b-button>
+        </div>
+      </b-overlay>
     </div>
   </div>
 </template>
 
 <script>
+import { mapState } from 'vuex';
 import Carousel from '../components/Carousel.vue';
 import AnnouncementGroup from '../components/AnnouncementGroup.vue';
 import ExhibitionCard from '../components/ExhibitionCard.vue';
@@ -32,15 +38,24 @@ export default {
     AnnouncementGroup,
     ExhibitionCard,
   },
+  data() {
+    return {
+      currentPage: 1,
+    };
+  },
+  mounted() {
+    this.$store.dispatch('exhibition/fetchExhibitionList');
+  },
+  computed: {
+    ...mapState({
+      wait: (state) => state.exhibition.wait,
+      exhibitionList: (state) => state.exhibition.exhibitionList,
+    }),
+  },
 };
 </script>
 
 <style lang='scss' scoped>
-.top-block-container {
-  // padding: 1rem 5rem;
-  max-height: 550px;
-}
-
 .col-style {
   margin: 0.5rem 0rem;
 }

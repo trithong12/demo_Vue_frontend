@@ -45,7 +45,7 @@
                 placeholder="輸入關鍵字進行搜尋"
               ></b-form-input>
               <b-input-group-append>
-                <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
+                <b-button :disabled="!filter" @click="filter = ''">清空</b-button>
               </b-input-group-append>
             </b-input-group>
           </b-form-group>
@@ -66,7 +66,13 @@
             </b-form-checkbox-group>
           </b-form-group>
         </b-col>
-
+      </b-row>
+      <b-row align-h="end">
+          <b-col xl="2" lg="2" md="3" sm="6">
+              <b-button block variant="danger" @click="showCreateModal">新增</b-button>
+          </b-col>
+      </b-row>
+      <b-row>
         <b-col sm="5" md="6" class="my-1">
           <b-form-group
             label="每頁筆數"
@@ -118,26 +124,19 @@
         :sort-direction="sortDirection"
         @filtered="onFiltered"
       >
-        <template v-slot:cell(name)="row">{{ row.value.first }} {{ row.value.last }}</template>
-
-        <template v-slot:cell(actions)="row">
+        <template v-slot:cell(actions)="record">
           <b-button
             size="sm"
-            @click="info(row.item, row.index, $event.target)"
-            class="mr-1"
-          >Info modal</b-button>
+            variant="success"
+            style="margin: 0.1rem 0.1rem;"
+            @click="showUpdateModal(record)"
+          >修改</b-button>
           <b-button
             size="sm"
-            @click="row.toggleDetails"
-          >{{ row.detailsShowing ? 'Hide' : 'Show' }} Details</b-button>
-        </template>
-
-        <template v-slot:row-details="row">
-          <b-card>
-            <ul>
-              <li v-for="(value, key) in row.item" :key="key">{{ key }}: {{ value }}</li>
-            </ul>
-          </b-card>
+            variant="secondary"
+            style="margin: 0.1rem 0.1rem;"
+            @click="deleteRecord(record.item.org_id)"
+          >刪除</b-button>
         </template>
       </b-table>
 
@@ -145,14 +144,25 @@
       <b-modal :id="infoModal.id" :title="infoModal.title" ok-only @hide="resetInfoModal">
         <pre>{{ infoModal.content }}</pre>
       </b-modal>
+
+      <OrganizationCreateOrUpdateFormModal
+      v-show="toShowCreateModal"
+      :refreshOrganizationList="refreshOrganizationList"
+      ref="organizationCreateOrUpdateFormModal" />
     </b-overlay>
   </b-container>
 </template>
 
 <script>
 import { mapState } from 'vuex';
+import datetimeFormatter from '../utils/datetimeFormatter';
+import OrganizationCreateOrUpdateFormModal from '../components/OrganizationCreateOrUpdateFormModal.vue';
 
 export default {
+  name: 'Organization',
+  components: {
+    OrganizationCreateOrUpdateFormModal,
+  },
   data() {
     return {
       fields: [
@@ -179,20 +189,26 @@ export default {
           label: '資料創立時間',
           sortable: true,
           sortDirection: 'asc',
+          formatter: (value) => datetimeFormatter(value),
         },
         {
           key: 'updated_at',
           label: '最近修改時間',
           sortable: true,
           sortDirection: 'asc',
+          formatter: (value) => datetimeFormatter(value),
+        },
+        {
+          key: 'actions',
+          label: '操作',
         },
       ],
       totalRows: 1,
       currentPage: 1,
       perPage: 20,
       pageOptions: [10, 15, 20, 25, 30],
-      sortBy: '',
-      sortDesc: false,
+      sortBy: 'created_at',
+      sortDesc: true,
       sortDirection: 'asc',
       filter: null,
       filterOn: [],
@@ -201,6 +217,7 @@ export default {
         title: '',
         content: '',
       },
+      toShowCreateModal: false,
     };
   },
   mounted() {
@@ -222,11 +239,6 @@ export default {
     },
   },
   methods: {
-    info(item, index, button) {
-      this.infoModal.title = `Row index: ${index}`;
-      this.infoModal.content = JSON.stringify(item, null, 2);
-      this.$root.$emit('bv::show::modal', this.infoModal.id, button);
-    },
     resetInfoModal() {
       this.infoModal.title = '';
       this.infoModal.content = '';
@@ -235,6 +247,45 @@ export default {
       // Trigger pagination to update the number of buttons/pages due to filtering
       this.totalRows = filteredItems.length;
       this.currentPage = 1;
+    },
+    showCreateModal() {
+      this.toShowCreateModal = true;
+      this.$refs.organizationCreateOrUpdateFormModal.showModal({ item: null });
+    },
+    showUpdateModal(record) {
+      this.toShowCreateModal = true;
+      this.$refs.organizationCreateOrUpdateFormModal.showModal({ item: record.item });
+    },
+    deleteRecord(orgId) {
+      this.boxTwo = '';
+      this.$bvModal.msgBoxConfirm(`您確定要刪除 {識別碼：${orgId}} 此筆資料？`, {
+        title: '確認刪除',
+        size: 'sm',
+        buttonSize: 'sm',
+        okVariant: 'danger',
+        okTitle: 'YES',
+        cancelTitle: 'NO',
+        footerClass: 'p-2',
+        hideHeaderClose: false,
+        centered: true,
+      })
+        .then((confirmYes) => {
+          if (confirmYes) {
+            this.$store.dispatch('organization/deleteOrganization', { org_id: orgId })
+              .then(() => {
+                this.refreshOrganizationList();
+              })
+              .catch((error) => {
+                console.log('error:', error);
+              });
+          }
+        })
+        .catch((error) => {
+          console.log('error:', error);
+        });
+    },
+    refreshOrganizationList() {
+      this.$store.dispatch('organization/fetchOrganizationList');
     },
   },
 };

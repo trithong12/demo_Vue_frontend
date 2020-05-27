@@ -3,7 +3,13 @@
     <div id="nav">
       <Menu></Menu>
     </div>
-    <router-view/>
+    <router-view class="container-fluid" />
+    <div id="footer" class="bg-primary navbar-fixed-bottom">
+      <span class="font-weight-normal">
+        This is a demo app presented by <b>Tri Thong, Tran</b>
+        <br />2020
+      </span>
+    </div>
   </div>
 </template>
 
@@ -31,24 +37,47 @@ export default {
 }
 
 #nav a.router-link-exact-active {
-  color: #42b983;
+  color: #33b474;
+}
+
+#nav a#title.router-link-exact-active {
+  color: #ffffff;
+}
+
+#footer {
+  height: 50px;
+  margin-top: 20px;
+  color: #ffffff;
+  text-align: center;
 }
 
 @media all and (min-width: 1280px) {
-    #app {
-      padding: 0rem 10rem;
-    }
+  #app {
+    padding: 0rem 10rem;
+  }
 }
 
 @media all and (min-width: 760px) and (max-width: 1280px) {
-    #app {
-      padding: 0rem 3rem;
-    }
+  #app {
+    padding: 0rem 3rem;
+  }
 }
 
 @media all and (max-width: 760px) {
-    #app {
-      padding: 0rem 0rem;
-    }
+  #app {
+    padding: 0rem 0rem;
+  }
+}
+
+.card-img-top {
+  width: 100%;
+  height: 15vw;
+  object-fit: cover;
+}
+
+.more-button-container {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
 }
 </style>

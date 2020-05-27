@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-navbar toggleable="lg" type="dark" variant="primary">
-      <b-navbar-brand :to="{name: 'Home'}">Demo</b-navbar-brand>
+      <b-navbar-brand id="title" :to="{name: 'Home'}">Demo</b-navbar-brand>
 
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
@@ -41,7 +41,9 @@
 </template>
 
 <script>
-export default {};
+export default {
+  name: 'Menu',
+};
 </script>
 
 <style lang='scss'>

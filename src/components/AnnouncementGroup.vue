@@ -17,11 +17,3 @@
     </b-card>
   </div>
 </template>
-
-<style lang='scss' scoped>
-.more-button-container {
-  margin-top: 10px;
-  display: flex;
-  justify-content: center;
-}
-</style>
