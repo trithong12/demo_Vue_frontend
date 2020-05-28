@@ -6,7 +6,7 @@
     <router-view class="container-fluid" />
     <div id="footer" class="bg-primary navbar-fixed-bottom">
       <span class="font-weight-normal">
-        This is a demo app presented by <b>Tri Thong, Tran</b>
+        This is a demo app presented by <b>Tran, Tri Thong</b>
         <br />2020
       </span>
     </div>
